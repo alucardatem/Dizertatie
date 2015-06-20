@@ -1,0 +1,10 @@
+#!/bin/bash
+
+while [ 1 -eq 1 ]; do
+	#clear
+        #cat capture_files/auto-01.csv
+	#sleep 4
+	clear
+	php -q functions.php
+	sleep 4
+done

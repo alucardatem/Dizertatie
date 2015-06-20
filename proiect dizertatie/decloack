@@ -1,0 +1,54 @@
+#!/usr/bin/python
+
+
+# script created by Tony 'albatr0ss' Di Bernardo, October 2011
+# you are free to re-use the code as long as you give credit to the author in you works
+
+import subprocess
+import sys, binascii, re
+from subprocess import Popen, PIPE
+
+class bcolors:
+	HEADER = '\033[95m'
+	OKBLUE = '\033[94m'
+	OKGREEN = '\033[92m'
+	WARNING = '\033[93m'
+	FAIL = '\033[91m'
+	ENDC = '\033[0m'
+
+def disable(self):
+	self.HEADER = ''
+	self.OKBLUE = ''
+	self.OKGREEN = ''
+	self.WARNING = ''
+	self.FAIL = ''
+	self.ENDC = ''
+
+	if (len(sys.argv) < 3):
+		print 'Usage: ' + sys.argv[0] + ' bssid essid_list channel interface'
+		sys.exit(-1)
+
+	bssid = sys.argv[1]
+	essid_list = sys.argv[2]
+	channel = sys.argv[3]
+	interface = sys.argv[4]
+
+
+	subprocess.call(["airmon-ng", "start", interface, channel])
+	print 'Searching name for Access Point ' + bssid + ' using file ' + essid_list
+	f = open(essid_list, 'r')
+
+	for temp in f:
+		essid = re.sub(r'\W+','', temp)
+		print 'Trying Essid: ' + essid
+		c = Popen(['aireplay-ng', '--fakeauth', '0', '-T 1','-a', bssid, '-e', essid, 'mon0'], stdout=PIPE)
+		output = c.stdout.read()
+
+	finalresult = output.split('\n')[6]
+
+	if finalresult.find('Association successful') != -1 :
+		print bcolors.WARNING + '\nFound! Access Point ' + bssid + ' Essid is ' + essid + bcolors.ENDC
+		subprocess.call(["airmon-ng", "stop", "mon0",])
+		sys.exit(0)
+
+	print bcolors.FAIL + '\nEssid not in file ' + essid_list + ' for Access Point ' + bssid + bcolors.ENDC

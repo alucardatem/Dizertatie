@@ -1,0 +1,7 @@
+#!/bin/bash
+
+while [ 1 -eq 1 ]; do
+	clear
+	cat capture_files/auto-01.csv
+	sleep 1
+done
